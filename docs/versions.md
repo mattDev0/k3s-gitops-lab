@@ -15,23 +15,23 @@ This document records the exact versions of toolchains, dependencies, container 
 - `serde`: `1.0.229` (serialization)
 - `serde_json`: `1.0.154` (JSON serialization)
 - `chrono`: `0.4.45` (timestamps for JSON logging)
-- `fastrand`: `2.5.0` (deterministic random generation for fault injection)
+- `fastrand`: `2.5.0` (fast non-cryptographic random numbers for fault injection)
 - `tower`: `0.5.3` (service utilities for integration testing)
 
 ## Container Images
 
 - **Builder Image**: `rust:1.99.1-slim-bookworm` (`sha256:ed2c95ca377d6571b124b05e75e01207973ded639dce7d5542eb7bcd797e32aa`)
-- **Runtime Base Image**: `gcr.io/distroless/cc-debian12:nonroot` (`sha256:9dac0a79194e45a7da0158a9c6da57b217585af0786db3845d1f0ec1a0dd182f`)
+- **Runtime Base Image**: `gcr.io/distroless/cc-debian12:nonroot`, pinned by digest in the Dockerfile (`sha256:9dac0a79194e45a7da0158a9c6da57b217585af0786db3845d1f0ec1a0dd182f`)
 
 ## Tooling & CI Utilities
 
-- **kubeconform**: `v0.6.7` (strict schema validation of Kubernetes manifests)
+- **kubeconform**: `v0.6.7` (strict schema validation of Kubernetes manifests; tarball verified in CI against SHA-256 `95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73`)
 - **Trivy**: used via `aquasecurity/trivy-action@v0.36.0`
 
 ## GitHub Actions
 
 - `actions/checkout@v7`
-- `dtolnay/rust-toolchain@stable`
+- `dtolnay/rust-toolchain@master` with `toolchain: 1.99.1` (same version as the builder image)
 - `Swatinem/rust-cache@v2`
 - `docker/setup-buildx-action@v4`
 - `docker/build-push-action@v7`

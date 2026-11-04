@@ -21,6 +21,15 @@ jobs:
         id: meta
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag must look like v1.2.3, got ${GITHUB_REF#refs/tags/}"
+            exit 1
+          fi
+          CARGO_VERSION="$(grep -m1 '^version = ' app/Cargo.toml | cut -d'"' -f2)"
+          if [ "$VERSION" != "$CARGO_VERSION" ]; then
+            echo "::error::Tag version $VERSION does not match app/Cargo.toml version $CARGO_VERSION"
+            exit 1
+          fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
@@ -33,11 +42,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Release Image
+      - name: Build Release Image
         uses: docker/build-push-action@v7
         with:
           context: app
-          push: true
+          load: true
           tags: ghcr.io/mattdev0/k3s-gitops-lab-demo:${{ steps.meta.outputs.version }}
           cache-from: type=gha,scope=demo
           cache-to: type=gha,mode=max,scope=demo
+
+      - name: Scan Release Image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/mattdev0/k3s-gitops-lab-demo:${{ steps.meta.outputs.version }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: CRITICAL
+
+      - name: Push Release Image
+        run: docker push ghcr.io/mattdev0/k3s-gitops-lab-demo:${{ steps.meta.outputs.version }}
