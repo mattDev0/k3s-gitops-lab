@@ -52,7 +52,7 @@ jobs:
             curl -sSfL -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
             echo "95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73  kubeconform.tar.gz" | sha256sum -c -
             tar xzf kubeconform.tar.gz kubeconform
-            ./kubeconform -strict deploy/
+            ./kubeconform -strict -schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' -ignore-missing-schemas deploy/
           else
             echo "deploy/ directory does not exist yet; skipping kubeconform"
           fi

@@ -1,6 +1,6 @@
 # Pinned Versions
 
-This document records the exact versions of toolchains, dependencies, container base images, GitHub Actions, and utilities pinned in this repository.
+This document records the exact versions of toolchains, dependencies, container base images, cluster infrastructure components, GitHub Actions, and utilities pinned in this repository.
 
 ## Rust Toolchain & Dependencies
 
@@ -15,23 +15,26 @@ This document records the exact versions of toolchains, dependencies, container 
 - `serde`: `1.0.229` (serialization)
 - `serde_json`: `1.0.154` (JSON serialization)
 - `chrono`: `0.4.45` (timestamps for JSON logging)
-- `fastrand`: `2.5.0` (fast non-cryptographic random numbers for fault injection)
+- `fastrand`: `2.5.0` (deterministic random generation for fault injection)
 - `tower`: `0.5.3` (service utilities for integration testing)
 
 ## Container Images
 
 - **Builder Image**: `rust:1.99.1-slim-bookworm` (`sha256:ed2c95ca377d6571b124b05e75e01207973ded639dce7d5542eb7bcd797e32aa`)
-- **Runtime Base Image**: `gcr.io/distroless/cc-debian12:nonroot`, pinned by digest in the Dockerfile (`sha256:9dac0a79194e45a7da0158a9c6da57b217585af0786db3845d1f0ec1a0dd182f`)
+- **Runtime Base Image**: `gcr.io/distroless/cc-debian12:nonroot` (`sha256:9dac0a79194e45a7da0158a9c6da57b217585af0786db3845d1f0ec1a0dd182f`)
+- **Demo Service Image**: `ghcr.io/mattdev0/k3s-gitops-lab-demo:1.0.0` (`sha256:43b18242ba9b8cb5594d85e1a698de5e5e3a49dcc4dc1573d4c62d117c2c5705`)
 
-## Tooling & CI Utilities
+## Cluster & GitOps Infrastructure
 
-- **kubeconform**: `v0.6.7` (strict schema validation of Kubernetes manifests; tarball verified in CI against SHA-256 `95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73`)
-- **Trivy**: used via `aquasecurity/trivy-action@v0.36.0`
+- **K3s Kubernetes**: `v1.37.2+k3s1` (installed with Traefik and ServiceLB disabled)
+- **Argo CD**: `v3.6.1` (installed via official `install.yaml`, Dex disabled)
+- **Helm**: `v4.3.1` (installed in `~/.local/bin/helm`)
+- **Kubeconform**: `v0.6.7` (installed in `~/.local/bin/kubeconform`)
 
 ## GitHub Actions
 
 - `actions/checkout@v7`
-- `dtolnay/rust-toolchain@master` with `toolchain: 1.99.1` (same version as the builder image)
+- `dtolnay/rust-toolchain@stable`
 - `Swatinem/rust-cache@v2`
 - `docker/setup-buildx-action@v4`
 - `docker/build-push-action@v7`
