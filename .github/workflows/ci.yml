@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint, Test & Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app -> target
+
+      - name: Check Formatting
+        run: |
+          cd app
+          cargo fmt --check
+
+      - name: Run Clippy
+        run: |
+          cd app
+          cargo clippy -- -D warnings
+
+      - name: Run Unit Tests
+        run: |
+          cd app
+          cargo test
+
+      - name: Validate Kubernetes Manifests
+        run: |
+          if [ -d "deploy" ]; then
+            echo "Validating Kubernetes manifests in deploy/..."
+            curl -sL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
+            ./kubeconform -strict deploy/
+          else
+            echo "deploy/ directory does not exist yet; skipping kubeconform"
+          fi
+
+  docker:
+    name: Build & Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v7
+        with:
+          context: app
+          load: true
+          tags: demo:test
+          cache-from: type=gha,scope=demo
+          cache-to: type=gha,mode=max,scope=demo
+
+      - name: Scan Image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: demo:test
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: CRITICAL
