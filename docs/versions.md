@@ -21,7 +21,7 @@ This document records the exact versions of toolchains, dependencies, container 
 ## Container Images
 
 - **Builder Image**: `rust:1.99.1-slim-bookworm` (`sha256:ed2c95ca377d6571b124b05e75e01207973ded639dce7d5542eb7bcd797e32aa`)
-- **Runtime Base Image**: `debian:12.9-slim` (`sha256:12c396bd585df7ec21d5679bb6a83d4878bc4415ce926c9e5ea6426d23c60bdc`)
+- **Runtime Base Image**: `gcr.io/distroless/cc-debian12:nonroot` (`sha256:9dac0a79194e45a7da0158a9c6da57b217585af0786db3845d1f0ec1a0dd182f`)
 
 ## Tooling & CI Utilities
 

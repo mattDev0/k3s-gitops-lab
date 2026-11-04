@@ -19,24 +19,16 @@ COPY src ./src
 RUN cargo build --release && \
     strip target/release/demo
 
-# Stage 2: Minimal runtime container
-FROM debian:12.9-slim
-
-# Install ca-certificates and clean apt caches
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+# Stage 2: Minimal runtime container using distroless
+FROM gcr.io/distroless/cc-debian12:nonroot
 
 WORKDIR /app
 
-# Create non-root system user
-RUN groupadd -g 10001 -r appuser && \
-    useradd -u 10001 -m -r -g appuser appuser
-
 # Copy compiled binary from builder
-COPY --from=builder --chown=appuser:appuser /app/target/release/demo /app/demo
+COPY --from=builder /app/target/release/demo /app/demo
 
-USER 10001
+# Run as non-root user provided by distroless (UID 65532)
+USER 65532:65532
 
 EXPOSE 8080
 
