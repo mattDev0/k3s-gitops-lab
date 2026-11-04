@@ -1,0 +1,11 @@
+# Rust
+/target/
+app/target/
+**/*.rs.bk
+*.bk
+
+# Environment & OS
+.env
+.DS_Store
+*.swp
+*~
