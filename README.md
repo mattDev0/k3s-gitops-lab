@@ -2,7 +2,7 @@
 
 A single-node Kubernetes lab running on an 8 GB Linode VM (`dev-workspace`), built to learn and demonstrate GitOps workflows, automated release verification, Prometheus SLO burn-rate alerting, and a git-driven rollback. The service is a small Rust application deployed exclusively through Argo CD with automated drift correction, without public exposure or production traffic claims.
 
-**Status:** Stage 3 of 5: monitoring, SLO and alerts
+**Status:** Stage 4 of 5: bad release, alert and rollback through git (see the incident report)
 
 ## Documentation
 
