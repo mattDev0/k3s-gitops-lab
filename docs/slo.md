@@ -52,12 +52,12 @@ Each window uses the same expression with a different range (`5m`, `30m`, `1h`, 
 ```yaml
 - record: job:http_requests_error_ratio:rate5m
   expr: >-
-    sum(rate(http_requests_total{route="/",method="GET",status=~"5.."}[5m]))
+    (sum(rate(http_requests_total{route="/",method="GET",status=~"5.."}[5m])) or vector(0))
     /
     sum(rate(http_requests_total{route="/",method="GET"}[5m]))
 ```
 
-The rules live in `deploy/apps/demo/prometheusrule.yaml`. CI extracts its `spec` and runs `promtool test rules` against it with `deploy/apps/demo/rules_test.yaml`: the page alert must fire on a 50% error series and both alerts must stay quiet at 0.5%.
+The rules live in `deploy/apps/demo/prometheusrule.yaml`. CI extracts its `spec` and runs `promtool test rules` against it with `deploy/apps/demo/rules_test.yaml`: the page alert must fire on a 50% error series, both alerts must stay quiet at 0.5%, and the ratio must be 0 (not empty) when no 5xx has ever been returned. The `or vector(0)` is there because the app only creates the 5xx counter after its first error.
 
 ---
 
