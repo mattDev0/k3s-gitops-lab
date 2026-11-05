@@ -20,7 +20,12 @@ tests:
       - eval_time: 2m
         alertname: DemoServiceErrorBudgetBurnRateHigh
         exp_alerts: []
-      - eval_time: 3m
+      # Not 3m: recording rules and alerts are separate groups, and promtool
+      # doesn't fix their order within an evaluation, so the alert sees the
+      # error ratio either at once or one interval late. It goes pending at 1m
+      # or 2m and fires at 3m or 4m; checking 2m (quiet) and 4m (firing) holds
+      # in both orders.
+      - eval_time: 4m
         alertname: DemoServiceErrorBudgetBurnRateHigh
         exp_alerts:
           - exp_labels:
