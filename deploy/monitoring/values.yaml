@@ -10,6 +10,8 @@ kubeProxy:
   enabled: false
 kubeEtcd:
   enabled: false
+coreDns:
+  enabled: false
 
 # Prometheus Operator
 prometheusOperator:
