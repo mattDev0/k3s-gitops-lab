@@ -132,3 +132,17 @@ The Alertmanager and Prometheus web interfaces serve as the authoritative eviden
 - Grafana Dashboard: `http://localhost:3000` (search for "Demo Service SLO Dashboard")
 
 The dashboard's "Remaining Error Budget" panel uses a 30-day `increase()`, but Prometheus keeps only 7 days of data, so the panel really shows the budget left over the last 7 days at most.
+
+## 8. Screenshots (baseline, before any fault)
+
+Taken on 2026-11-05 with only the synthetic traffic running.
+
+Both burn-rate alerts are loaded and inactive:
+
+![Prometheus alerts, both inactive](screenshots/prometheus-alerts-inactive.png)
+
+p95 latency and the remaining error budget:
+
+![Grafana p95 latency and error budget](screenshots/grafana-latency-and-budget.png)
+
+The p95 line is flat at 950 µs because every request falls in the smallest histogram bucket (up to 1 ms), so `histogram_quantile` can only place p95 inside that bucket. The real p95 is somewhere under 1 ms. Screenshots of the error-ratio panel and the firing alert come from the Stage 4 fault exercise.
