@@ -9,6 +9,7 @@ A single-node Kubernetes lab running on an 8 GB Linode VM (`dev-workspace`), bui
 - [Architecture & Design Decisions](docs/architecture.md)
 - [Service Level Objective & Burn-Rate Alerting](docs/slo.md)
 - [Pinned Versions](docs/versions.md)
+- [Incident Report: Bad Release Rollback](docs/incidents/2026-11-05-bad-release-rollback.md)
 
 ## Local Development
 
@@ -55,6 +56,3 @@ Run the container:
 docker run --rm -p 8080:8080 demo:local
 ```
 
-## Documentation
-
-- [Pinned Versions](docs/versions.md)
