@@ -101,7 +101,15 @@ terraform init
 terraform plan
 ```
 
-Both `terraform fmt -check` and `terraform validate` are executed in CI on every push and pull request.
+Result on 2026-11-05 (Terraform 1.15.3 locally, provider `linode/linode` 4.9.0):
+
+```
+Plan: 2 to import, 0 to add, 0 to change, 0 to destroy.
+```
+
+The code matches the real VM and firewall. Getting there took two fixes: leaving out `image` (the API doesn't return it for an existing Linode, and setting it would plan a rebuild), and ignoring `migration_type` and `resize_disk` (provider-only settings that an imported instance has no stored value for). Both resources have `prevent_destroy`. I haven't run `apply`; nothing is managed through Terraform state.
+
+Both `terraform fmt -check` and `terraform validate` run in CI on every push and pull request.
 
 ---
 
