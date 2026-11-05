@@ -47,6 +47,7 @@ This document records the exact versions of toolchains, dependencies, container 
 - `docker/build-push-action@v7`
 - `docker/login-action@v4`
 - `aquasecurity/trivy-action@v0.36.0`
+- `hashicorp/setup-terraform@v3` with `terraform_version: 1.10.5`
 
 ## Infrastructure as Code (Terraform)
 
