@@ -52,10 +52,19 @@ jobs:
             curl -sSfL -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
             echo "95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73  kubeconform.tar.gz" | sha256sum -c -
             tar xzf kubeconform.tar.gz kubeconform
-            ./kubeconform -strict -summary -skip Kustomization -schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/6ab3493622cd387923a2d0da5234f53e80e1bd28/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' deploy/
+            ./kubeconform -strict -summary -skip Kustomization -ignore-filename-pattern '(values|rules|rules_test)\.yaml$' -schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/6ab3493622cd387923a2d0da5234f53e80e1bd28/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' deploy/
           else
             echo "deploy/ directory does not exist yet; skipping kubeconform"
           fi
+
+      - name: Test Prometheus Rules with Promtool
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            -w /workspace \
+            --entrypoint /bin/promtool \
+            prom/prometheus:v3.15.1 \
+            test rules deploy/apps/demo/rules_test.yaml
 
   docker:
     name: Build & Security Scan

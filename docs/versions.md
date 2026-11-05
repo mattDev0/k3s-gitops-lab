@@ -23,14 +23,19 @@ This document records the exact versions of toolchains, dependencies, container 
 - **Builder Image**: `rust:1.99.1-slim-bookworm` (`sha256:ed2c95ca377d6571b124b05e75e01207973ded639dce7d5542eb7bcd797e32aa`)
 - **Runtime Base Image**: `gcr.io/distroless/cc-debian12:nonroot`, pinned by digest in the Dockerfile (`sha256:9dac0a79194e45a7da0158a9c6da57b217585af0786db3845d1f0ec1a0dd182f`)
 - **Demo Service Image**: `ghcr.io/mattdev0/k3s-gitops-lab-demo:1.0.0` (`sha256:43b18242ba9b8cb5594d85e1a698de5e5e3a49dcc4dc1573d4c62d117c2c5705`)
+- **Synthetic Load Generator Base Image**: `curlimages/curl:8.12.1` (`sha256:94e9e444bcba979c2ea12e27ae39bee4cd10bc7041a472c4727a558e213744e6`)
+- **Prometheus Tooling Image (CI)**: `prom/prometheus:v3.15.1`
 
 ## Cluster & GitOps Infrastructure
 
 - **K3s Kubernetes**: `v1.37.2+k3s1` (installed with Traefik and ServiceLB disabled)
 - **Argo CD**: `v3.6.1` (installed via official `install.yaml`, Dex disabled)
-- **Helm**: `v4.3.1` (installed in `~/.local/bin/helm`)
-- **Kubeconform**: `v0.6.7` (installed in `~/.local/bin/kubeconform`; the CI tarball is verified against SHA-256 `95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73`)
-- **CRD schemas for kubeconform**: `datreeio/CRDs-catalog` pinned to commit `6ab3493622cd387923a2d0da5234f53e80e1bd28` (Argo CD `Application` and `AppProject`)
+- **kube-prometheus-stack**: `92.18.0` (pinned Helm chart from `prometheus-community`)
+- **Prometheus**: `v3.15.1`
+- **Promtool**: `v3.15.1`
+- **Helm**: `v3.17.1` (installed in `~/.cargo/bin/helm`)
+- **Kubeconform**: `v0.6.7` (installed in `~/.cargo/bin/kubeconform`; CI tarball verified against SHA-256 `95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73`)
+- **CRD schemas for kubeconform**: `datreeio/CRDs-catalog` pinned to commit `6ab3493622cd387923a2d0da5234f53e80e1bd28` (Argo CD `Application`, `AppProject`, Prometheus Operator `ServiceMonitor`, `PrometheusRule`)
 - **Trivy**: used via `aquasecurity/trivy-action@v0.36.0`
 
 ## GitHub Actions
