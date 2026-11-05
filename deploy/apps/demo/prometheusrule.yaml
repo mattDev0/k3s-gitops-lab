@@ -1,0 +1,59 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: demo-slo
+  namespace: demo
+  labels:
+    app: demo
+spec:
+  groups:
+    - name: demo-slo-recording-rules
+      rules:
+        - record: job:http_requests_error_ratio:rate5m
+          expr: >-
+            sum(rate(http_requests_total{route="/",method="GET",status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{route="/",method="GET"}[5m]))
+        - record: job:http_requests_error_ratio:rate30m
+          expr: >-
+            sum(rate(http_requests_total{route="/",method="GET",status=~"5.."}[30m]))
+            /
+            sum(rate(http_requests_total{route="/",method="GET"}[30m]))
+        - record: job:http_requests_error_ratio:rate1h
+          expr: >-
+            sum(rate(http_requests_total{route="/",method="GET",status=~"5.."}[1h]))
+            /
+            sum(rate(http_requests_total{route="/",method="GET"}[1h]))
+        - record: job:http_requests_error_ratio:rate6h
+          expr: >-
+            sum(rate(http_requests_total{route="/",method="GET",status=~"5.."}[6h]))
+            /
+            sum(rate(http_requests_total{route="/",method="GET"}[6h]))
+
+    - name: demo-slo-alerts
+      rules:
+        - alert: DemoServiceErrorBudgetBurnRateHigh
+          expr: >-
+            job:http_requests_error_ratio:rate1h > (14.4 * 0.01)
+            and
+            job:http_requests_error_ratio:rate5m > (14.4 * 0.01)
+          for: 2m
+          labels:
+            severity: page
+          annotations:
+            summary: "Demo service error budget burn rate high (page-level)"
+            description: "The 1h error ratio and 5m error ratio both exceed 14.4x burn rate (14.4% errors). At this rate, the monthly error budget will be exhausted in ~2 days. See runbook at docs/slo.md#runbook-high-burn-rate-page."
+            runbook_url: "https://github.com/mattDev0/k3s-gitops-lab/blob/main/docs/slo.md#runbook-high-burn-rate-page"
+
+        - alert: DemoServiceErrorBudgetBurnRateSlow
+          expr: >-
+            job:http_requests_error_ratio:rate6h > (6.0 * 0.01)
+            and
+            job:http_requests_error_ratio:rate30m > (6.0 * 0.01)
+          for: 2m
+          labels:
+            severity: ticket
+          annotations:
+            summary: "Demo service error budget burn rate slow (ticket-level)"
+            description: "The 6h error ratio and 30m error ratio both exceed 6.0x burn rate (6.0% errors). At this rate, 5% of monthly budget is consumed in 6 hours. See runbook at docs/slo.md#runbook-slow-burn-rate-ticket."
+            runbook_url: "https://github.com/mattDev0/k3s-gitops-lab/blob/main/docs/slo.md#runbook-slow-burn-rate-ticket"
