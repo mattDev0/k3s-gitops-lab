@@ -28,7 +28,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: FAULT_ERROR_RATE
-              value: "0.0"
+              value: "0.3"
             - name: PORT
               value: "8080"
           ports:
