@@ -1,6 +1,6 @@
 # k3s-gitops-lab
 
-A single-node Kubernetes lab running on an 8 GB Linode VM (`dev-workspace`), built to learn and demonstrate GitOps workflows, automated release verification, Prometheus SLO burn-rate alerting, and a git-driven rollback. The service is a small Rust application deployed exclusively through Argo CD with automated drift correction, without public exposure or production traffic claims. The underlying VM and firewall were provisioned by hand and are formally described by Terraform in `infra/terraform/` using import blocks; the reviewer runs the read-only import plan from another machine and records the result. The cluster ran until the VM's promotional credit ended, and this repository serves as the permanent, immutable engineering record.
+A single-node Kubernetes lab running on an 8 GB Linode VM (`dev-workspace`), built to learn and demonstrate GitOps workflows, automated release verification, Prometheus SLO burn-rate alerting, and a git-driven rollback. The service is a small Rust application deployed exclusively through Argo CD with automated drift correction, without public exposure or production traffic claims. I created the VM and its firewall by hand; `infra/terraform/` describes them with import blocks. The cluster runs until the VM's Linode credit ends on 2027-01-01, and after that this repository is the record of the project.
 
 ---
 
@@ -34,7 +34,7 @@ flowchart TD
             end
 
             subgraph LoadGenNamespace ["Namespace: loadgen"]
-                LoadGen["curl Load Generator<br/>(~5 rps synthetic stream)"]
+                LoadGen["curl Load Generator<br/>(~2.7 req/s synthetic traffic)"]
             end
         end
 
@@ -64,9 +64,9 @@ flowchart TD
 ## What This Demonstrates
 
 - **GitOps with drift correction**: All cluster resources are managed declaratively through an Argo CD app-of-apps architecture with automated pruning (`prune: true`) and self-healing (`selfHeal: true`). Live state is kept in continuous alignment with `main`.
-- **Pinned and scanned releases**: Semantic version tags trigger immutable container builds on `rust:1.99.1-slim-bookworm` published to `ghcr.io`, packaged in a minimal Google Distroless runtime image (`gcr.io/distroless/cc-debian12:nonroot`) pinned by sha256 digest, and continuously scanned for critical vulnerabilities via Trivy in CI.
+- **Pinned and scanned releases**: Semantic version tags trigger immutable container builds on `rust:1.99.1-slim-bookworm` published to `ghcr.io`, packaged in a minimal Google Distroless runtime image (`gcr.io/distroless/cc-debian12:nonroot`) pinned by sha256 digest, and scanned with Trivy in CI and again before every release push.
 - **SLO with burn-rate alerts and tested rules**: A synthetic 99.0% availability Service Level Objective implemented with multi-window multi-burn-rate alerting ($14.4\times$ page and $6.0\times$ ticket alerts). Recording rules are tested in CI using `promtool test rules` against synthetic failure and baseline timeseries fixtures.
-- **Rollback by git revert with measured recovery**: Controlled fault injection (`FAULT_ERROR_RATE: "0.3"`) triggering alert transitions, followed by a clean `git revert` rollback merged via PR that restored error-free service within 7 minutes. Documented in the [bad release incident report](docs/incidents/2026-11-05-bad-release-rollback.md).
+- **Rollback by git revert with measured recovery**: Controlled fault injection (`FAULT_ERROR_RATE: "0.3"`) triggering alert transitions, followed by a `git revert` merged through a PR. Argo CD deployed it on its own and errors stopped 3 minutes 18 seconds after the merge; the page alert fired 29.5 minutes after the first error, and the write-up explains why. Documented in the [bad release incident report](docs/incidents/2026-11-05-bad-release-rollback.md).
 
 ---
 
@@ -92,11 +92,11 @@ infra/terraform/
 └── versions.tf
 ```
 
-To maintain security, the VM itself does not possess a Linode API token. The reviewer runs the read-only import plan from a separate workstation:
+The VM itself holds no Linode API token. The import plan is run read-only from my workstation, with the token only in the environment (`plan` never changes anything, and both resources have `prevent_destroy`):
 
 ```bash
 cd infra/terraform
-export LINODE_TOKEN="<your-token>"
+export LINODE_TOKEN=...   # never committed; state and tfvars are git-ignored
 terraform init
 terraform plan
 ```
@@ -149,11 +149,11 @@ kubectl -n monitoring port-forward svc/monitoring-grafana 3000:80
 kubectl -n monitoring port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090
 
 # Alertmanager UI (http://localhost:9093)
-kubectl -n monitoring port-forward svc/alertmanager-monitoring-kube-prometheus-alertmanager 9093:9093
+kubectl -n monitoring port-forward svc/monitoring-kube-prometheus-alertmanager 9093:9093
 ```
 
 ---
 
 ## Teardown
 
-The single-node cluster ran until the Linode VM's promotional credits ended. This Git repository is the permanent record of the project. See the [Cluster Teardown Runbook](docs/teardown.md) for the manual decommissioning steps to run before 2027-01-01.
+The cluster runs until the VM's Linode credit ends on 2027-01-01. Before then I tear it down by hand with the [teardown runbook](docs/teardown.md); after that, this repository is the record of the project.

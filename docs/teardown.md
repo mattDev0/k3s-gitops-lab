@@ -30,16 +30,16 @@ Before deleting the VM, verify that all visual artifacts and verification data a
 ---
 
 ### Step 2: Uninstall K3s on `dev-workspace`
-SSH into `dev-workspace` (via Tailscale or internal IP):
+SSH into `dev-workspace` over Tailscale as `matt` (root login and password login are disabled):
 
 ```bash
-ssh root@<dev-workspace-ip>
+ssh -i ~/.ssh/linode_workspace matt@100.79.132.87
 ```
 
-Run the official K3s uninstall script provided during cluster bootstrap:
+Run the K3s uninstall script that the installer put on the VM:
 
 ```bash
-/usr/local/bin/k3s-uninstall.sh
+sudo /usr/local/bin/k3s-uninstall.sh
 ```
 
 This script:
@@ -83,5 +83,10 @@ linode-cli linodes delete 109711421
 
 ---
 
-### Step 4: Final Verification
-Confirm in the Linode Cloud Manager dashboard that no active Linodes or Firewalls remain associated with the project, ensuring billing against the account is halted.
+### Step 4: Remove access the VM had
+- In the Tailscale admin console, remove the `dev-workspace` machine.
+- In GitHub, Settings > SSH and GPG keys, delete the `dev-workspace-linode` key. The VM used it to push.
+- Revoke the Linode API token used for `terraform plan` and `linode-cli` if nothing else needs it.
+
+### Step 5: Final Verification
+Confirm in the Linode Cloud Manager that no Linodes or Firewalls from this project remain, so nothing more is billed.

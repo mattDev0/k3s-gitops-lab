@@ -4,11 +4,17 @@ import {
   id = "109711421"
 }
 
+# Describes the VM I created by hand in the Cloud Manager (Ubuntu 24.04). `image` is left
+# out on purpose: the API doesn't return it for an existing Linode, and setting it would
+# make Terraform plan to rebuild the VM.
 resource "linode_instance" "dev_workspace" {
   label  = "dev-workspace"
   region = "gb-lon"
   type   = "g6-standard-4"
-  image  = "linode/ubuntu24.04"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Import existing dev-workspace Cloud Firewall (Firewall ID: 229456920)
@@ -25,4 +31,8 @@ resource "linode_firewall" "dev_workspace_fw" {
   linodes = [
     linode_instance.dev_workspace.id,
   ]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
