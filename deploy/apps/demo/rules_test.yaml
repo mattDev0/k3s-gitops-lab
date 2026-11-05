@@ -44,3 +44,19 @@ tests:
       - eval_time: 65m
         alertname: DemoServiceErrorBudgetBurnRateSlow
         exp_alerts: []
+
+  # Test 3: no 5xx series exists yet (a healthy service); the ratio must be 0, not empty
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{route="/",method="GET",status="200"}'
+        values: '0+150x70'
+    promql_expr_test:
+      - expr: job:http_requests_error_ratio:rate5m
+        eval_time: 10m
+        exp_samples:
+          - labels: 'job:http_requests_error_ratio:rate5m'
+            value: 0
+    alert_rule_test:
+      - eval_time: 65m
+        alertname: DemoServiceErrorBudgetBurnRateHigh
+        exp_alerts: []
