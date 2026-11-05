@@ -14,6 +14,9 @@ resource "linode_instance" "dev_workspace" {
 
   lifecycle {
     prevent_destroy = true
+    # Provider-only settings for future resizes and migrations. An imported instance has
+    # no stored value for them, so without this the plan shows a no-op "update in-place".
+    ignore_changes = [migration_type, resize_disk]
   }
 }
 
