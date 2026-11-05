@@ -54,11 +54,16 @@ alertmanager:
         memory: 64Mi
 
 # Grafana
-# Admin credentials generated automatically as a Kubernetes Secret by the chart; reach only via port-forward
+# Admin credentials come from the Secret "grafana-admin", created once by hand (see
+# docs/architecture.md, Bootstrap) and never stored in git. Letting the chart generate the
+# password made Argo CD render a new one on every commit, which changed the password and
+# restarted Grafana after each merge. Reach Grafana only via port-forward.
 grafana:
   enabled: true
   admin:
-    existingSecret: ""
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
   resources:
     requests:
       cpu: 100m

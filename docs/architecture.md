@@ -47,6 +47,13 @@ Everything in the cluster arrives through Argo CD from `main`, except these one-
 2. Install Argo CD `v3.6.1` from its pinned `install.yaml`. I used `kubectl apply --server-side --force-conflicts`, because the `applicationsets.argoproj.io` CRD is larger than the 256 KB limit of the annotation that a client-side apply writes.
 3. Scale `argocd-dex-server` to 0 replicas (SSO is not needed; the built-in admin account is enough for a single-user lab).
 4. `kubectl apply -f deploy/argocd/root.yaml`. The root Application then creates the `lab` AppProject (sync wave -1) and the `demo` Application from `deploy/argocd/apps/`.
+5. Create the Grafana admin Secret once, with a random password that never goes into git:
+   ```bash
+   kubectl -n monitoring create secret generic grafana-admin \
+     --from-literal=admin-user=admin \
+     --from-literal=admin-password="$(head -c 48 /dev/urandom | base64 | tr -dc A-Za-z0-9 | head -c 32)"
+   ```
+   Read it back with `kubectl -n monitoring get secret grafana-admin -o jsonpath='{.data.admin-password}' | base64 -d`.
 
 ## Resource footprint after Stage 2
 
