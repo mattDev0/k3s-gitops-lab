@@ -1,3 +1,5 @@
+# rules.yaml is generated in CI from the spec of prometheusrule.yaml,
+# so the test always runs against the rules the cluster loads.
 rule_files:
   - rules.yaml
 
@@ -26,7 +28,7 @@ tests:
             exp_annotations:
               summary: "Demo service error budget burn rate high (page-level)"
               description: "The 1h error ratio and 5m error ratio both exceed 14.4x burn rate (14.4% errors). At this rate, the monthly error budget will be exhausted in ~2 days. See runbook at docs/slo.md#runbook-high-burn-rate-page."
-              runbook_url: "docs/slo.md#runbook-high-burn-rate-page"
+              runbook_url: "https://github.com/mattDev0/k3s-gitops-lab/blob/main/docs/slo.md#runbook-high-burn-rate-page"
 
   # Test 2: 0.5% error rate series staying quiet (below 1% error budget, no alerts fire)
   - interval: 1m

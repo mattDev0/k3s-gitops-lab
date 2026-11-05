@@ -32,9 +32,9 @@ This document records the exact versions of toolchains, dependencies, container 
 - **Argo CD**: `v3.6.1` (installed via official `install.yaml`, Dex disabled)
 - **kube-prometheus-stack**: `92.18.0` (pinned Helm chart from `prometheus-community`)
 - **Prometheus**: `v3.15.1`
-- **Promtool**: `v3.15.1`
-- **Helm**: `v3.17.1` (installed in `~/.cargo/bin/helm`)
-- **Kubeconform**: `v0.6.7` (installed in `~/.cargo/bin/kubeconform`; CI tarball verified against SHA-256 `95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73`)
+- **Promtool**: `v3.15.1` (installed in `~/.local/bin/promtool`; CI uses the `prom/prometheus:v3.15.1` image)
+- **Helm**: `v4.3.1` (installed in `~/.local/bin/helm`)
+- **Kubeconform**: `v0.6.7` (installed in `~/.local/bin/kubeconform`; CI tarball verified against SHA-256 `95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73`)
 - **CRD schemas for kubeconform**: `datreeio/CRDs-catalog` pinned to commit `6ab3493622cd387923a2d0da5234f53e80e1bd28` (Argo CD `Application`, `AppProject`, Prometheus Operator `ServiceMonitor`, `PrometheusRule`)
 - **Trivy**: used via `aquasecurity/trivy-action@v0.36.0`
 

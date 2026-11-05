@@ -79,7 +79,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "sum(rate(http_requests_total{route=\"/\"}[1m]))",
+              "expr": "sum(rate(http_requests_total{route=\"/\",method=\"GET\"}[1m]))",
               "legendFormat": "HTTP Request Rate",
               "range": true,
               "refId": "A"
@@ -291,7 +291,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "clamp_min(100 * (1 - ((sum(increase(http_requests_total{route=\"/\",status=~\"5..\"}[30d])) or vector(0)) / (sum(increase(http_requests_total{route=\"/\"}[30d])) or vector(1))) / 0.01), 0)",
+              "expr": "clamp_min(100 * (1 - ((sum(increase(http_requests_total{route=\"/\",method=\"GET\",status=~\"5..\"}[30d])) or vector(0)) / (sum(increase(http_requests_total{route=\"/\",method=\"GET\"}[30d])) or vector(1))) / 0.01), 0)",
               "legendFormat": "Remaining Budget (%)",
               "range": true,
               "refId": "A"

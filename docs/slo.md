@@ -47,31 +47,17 @@ To avoid alerting on transient spikes (short bursts that quickly recover) while 
 
 Recording rules compute the error ratio across all four required time windows to eliminate redundant high-cardinality PromQL evaluations across alerts and dashboards:
 
+Each window uses the same expression with a different range (`5m`, `30m`, `1h`, `6h`). The 5-minute rule:
+
 ```yaml
 - record: job:http_requests_error_ratio:rate5m
   expr: >-
-    sum(rate(http_requests_total{route="/",status=~"5.."}[5m]))
+    sum(rate(http_requests_total{route="/",method="GET",status=~"5.."}[5m]))
     /
-    sum(rate(http_requests_total{route="/"}[5m]))
-
-- record: job:http_requests_error_ratio:rate30m
-  expr: >-
-    sum(rate(http_requests_total{route="/",status=~"5.."}[30m]))
-    /
-    sum(rate(http_requests_total{route="/"}[30m]))
-
-- record: job:http_requests_error_ratio:rate1h
-  expr: >-
-    sum(rate(http_requests_total{route="/",status=~"5.."}[1h]))
-    /
-    sum(rate(http_requests_total{route="/"}[1h]))
-
-- record: job:http_requests_error_ratio:rate6h
-  expr: >-
-    sum(rate(http_requests_total{route="/",status=~"5.."}[6h]))
-    /
-    sum(rate(http_requests_total{route="/"}[6h]))
+    sum(rate(http_requests_total{route="/",method="GET"}[5m]))
 ```
+
+The rules live in `deploy/apps/demo/prometheusrule.yaml`. CI extracts its `spec` and runs `promtool test rules` against it with `deploy/apps/demo/rules_test.yaml`: the page alert must fire on a 50% error series and both alerts must stay quiet at 0.5%.
 
 ---
 
@@ -101,12 +87,14 @@ Recording rules compute the error ratio across all four required time windows to
      kubectl get deployment demo -n demo -o jsonpath='{.spec.template.spec.containers[0].env}'
      ```
   5. **Remediation**:
-     If an unintentional or faulty release caused the regression, revert the commit on `main` via Git:
+     If a release caused the regression, revert its commit on a branch and merge the revert through a pull request:
      ```bash
+     git switch -c revert-bad-release origin/main
      git revert <commit-sha>
-     git push origin main
+     git push -u origin revert-bad-release
+     gh pr create --fill
      ```
-     Argo CD will automatically sync the revert and heal the cluster.
+     After the revert merges, Argo CD syncs `main` and rolls the Deployment back.
 
 ---
 
@@ -129,7 +117,7 @@ Recording rules compute the error ratio across all four required time windows to
 
 Under normal conditions, real user traffic does not exist in this isolated lab. To allow recording rules and SLI metrics to evaluate continuously without division-by-zero gaps:
 - Deployment `loadgen` in namespace `loadgen` runs `curlimages/curl:8.12.1`.
-- It executes a loop issuing ~5 requests per second to `http://demo.demo.svc:8080/`.
+- It loops `curl` against `http://demo.demo.svc:8080/` with a 0.2 s pause between requests, so at most about 5 requests per second.
 - All traffic recorded under normal operation reflects this synthetic stream.
 
 ---
@@ -142,3 +130,5 @@ The Alertmanager and Prometheus web interfaces serve as the authoritative eviden
 - Prometheus Alerts UI: `http://localhost:9090/alerts`
 - Alertmanager UI: `http://localhost:9093`
 - Grafana Dashboard: `http://localhost:3000` (search for "Demo Service SLO Dashboard")
+
+The dashboard's "Remaining Error Budget" panel uses a 30-day `increase()`, but Prometheus keeps only 7 days of data, so the panel really shows the budget left over the last 7 days at most.

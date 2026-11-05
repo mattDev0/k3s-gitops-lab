@@ -75,6 +75,9 @@ Automated tools that write image tag bumps directly back to Git repositories blu
 - Reverting a deployment (demonstrated in Stage 4) is a straightforward `git revert`.
 - Continuous Delivery cannot accidentally deploy untested tags to the cluster.
 
-### 4. What Is Deliberately Left Out
+### 4. The `lab` project's cluster-wide permissions
+kube-prometheus-stack needs cluster-scoped objects, so the `lab` AppProject allows Namespaces, ClusterRoles, ClusterRoleBindings, CRDs and admission webhooks. In practice, anyone who can merge to `main` has close to cluster-admin. That is acceptable for a single-user lab; a shared cluster would split monitoring into its own project with a narrower allow-list.
+
+### 5. What Is Deliberately Left Out
 - **Public Ingress & DNS/TLS**: The lab does not serve public traffic or require Let's Encrypt certificates. It is an internal demonstration environment accessed securely over localhost port-forwards.
 - **High Availability (HA) & Multi-Node**: The entire platform runs on a single Linode standard instance with 8 GB RAM and 4 vCPUs. Clustering overhead (etcd quorum, redundant control planes) is unnecessary for the scope of this learning lab and would consume valuable memory needed by Prometheus and Argo CD.
