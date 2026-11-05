@@ -70,6 +70,20 @@ jobs:
             prom/prometheus:v3.15.1 \
             test rules rules_test.yaml
 
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.17.1"
+          terraform_wrapper: false
+
+      - name: Validate Terraform Configuration
+        run: |
+          cd infra/terraform
+          terraform fmt -check
+          terraform init -backend=false
+          terraform validate
+
+
   docker:
     name: Build & Security Scan
     runs-on: ubuntu-latest
