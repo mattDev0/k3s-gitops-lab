@@ -70,6 +70,14 @@ jobs:
             prom/prometheus:v3.15.1 \
             test rules rules_test.yaml
 
+      - name: Validate Terraform Configuration
+        run: |
+          cd infra/terraform
+          terraform fmt -check
+          terraform init -backend=false
+          terraform validate
+
+
   docker:
     name: Build & Security Scan
     runs-on: ubuntu-latest

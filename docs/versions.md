@@ -47,3 +47,9 @@ This document records the exact versions of toolchains, dependencies, container 
 - `docker/build-push-action@v7`
 - `docker/login-action@v4`
 - `aquasecurity/trivy-action@v0.36.0`
+
+## Infrastructure as Code (Terraform)
+
+- **Terraform CLI**: `1.10.5`
+- **Linode Provider (`linode/linode`)**: `4.9.0` (pinned in `infra/terraform/versions.tf` and `.terraform.lock.hcl`)
+
